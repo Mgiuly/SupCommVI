@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcolatore Superficie Commerciale e Valore - Giuliato&Battistin</title>
+    <!-- jsPDF Library via CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Chart.js Library via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        :root {
+            --primary-color: #005a87; /* Blu scuro */
+            --secondary-color: #007b9e; /* Blu medio */
+            --accent-color: #28a745; /* Verde */
+            --danger-color: #dc3545; /* Rosso */
+            --light-gray: #f4f7f6;
+            --medium-gray: #e0e0e0;
+            --dark-gray: #555;
+            --text-color: #333;
+            --white: #ffffff;
+            --border-radius: 8px;
+            --box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+             --box-shadow-light: 0 4px 15px rgba(0, 0, 0, 0.06);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--light-gray);
+            color: var(--text-color);
+        }
+        .container {
+            max-width: 900px; /* Increased max-width */
+            margin: 20px auto;
+            background-color: var(--white);
+            padding: 30px 40px; /* More padding */
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--medium-gray);
+            padding-bottom: 20px;
+        }
+        .header h1 {
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            font-size: 1.8em;
+        }
+         .header h2 {
+             color: var(--secondary-color);
+             font-size: 1.3em;
+             margin-top: 0;
+             margin-bottom: 15px;
+             font-weight: 500;
+         }
+         .header .contact-info {
+            font-size: 0.9em;
+            color: var(--dark-gray);
+            line-height: 1.5;
+         }
+          .header .contact-info a {
+             color: var(--secondary-color);
+             text-decoration: none;
+          }
+          .header .contact-info a:hover {
+             text-decoration: underline;
+          }
+         .header .contact-info i {
+             margin-right: 5px;
+             color: var(--secondary-color);
+             width: 15px; /* Align icons */
+             text-align: center;
+         }
+
+        h2.section-title {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 25px;
+            margin-top: 35px;
+            font-size: 1.5em;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            display: inline-block; /* Center the border */
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #calculator-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Slightly wider columns */
+            gap: 25px;
+        }
+        .form-section {
+            background-color: #fdfdfd;
+            padding: 20px;
+            border: 1px solid var(--medium-gray);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow-light);
+             transition: box-shadow 0.3s ease;
+        }
+        .form-section:hover {
+             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        .form-section h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+            font-size: 1.2em;
+             border-bottom: 1px solid #eee;
+             padding-bottom: 8px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600; /* Slightly bolder */
+            color: var(--dark-gray);
+            font-size: 0.95em;
+        }
+        input[type="number"] {
+            width: calc(100% - 24px); /* Account for padding */
+            padding: 12px; /* Increased padding */
+            margin-bottom: 10px; /* Reduced margin */
+            border: 1px solid #ccc;
+            border-radius: 5px; /* Softer corners */
+            font-size: 1em;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+         input[type="number"]:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+            box-shadow: 0 0 8px rgba(0, 123, 158, 0.2);
+        }
+        .input-hint {
+            font-size: 0.8em; /* Smaller hint */
+            color: #888; /* Lighter hint color */
+            margin-top: -5px;
+            margin-bottom: 15px;
+            display: block;
+        }
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            width: 100%;
+            margin-top: 10px;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             gap: 8px; /* Space between icon and text */
+        }
+        button:hover {
+            background-color: #004160; /* Darken primary */
+            transform: translateY(-1px);
+        }
+         button:active {
+             transform: translateY(0px);
+         }
+        #calculate-btn {
+            grid-column: 1 / -1; /* Span full width */
+            background-color: var(--accent-color);
+        }
+         #calculate-btn:hover {
+            background-color: #218838; /* Darken accent */
+        }
+         .pdf-buttons-container {
+            grid-column: 1 / -1; /* Span full width */
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Two columns for buttons */
+            gap: 15px;
+            margin-top: 10px;
+         }
+        #download-pdf-btn-it,
+        #download-pdf-btn-en {
+             background-color: var(--danger-color);
+             display: none; /* Hidden initially */
+        }
+        #download-pdf-btn-it:hover,
+        #download-pdf-btn-en:hover {
+             background-color: #c82333; /* Darken danger */
+        }
+
+        #results {
+            margin-top: 40px;
+            background-color: #e9f5f9;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            border: 1px solid #b6ddeb;
+            box-shadow: var(--box-shadow-light);
+        }
+        #results h2.results-title { /* Specific class for results title */
+            margin-top: 0;
+            color: var(--primary-color);
+            text-align: center;
+            border-bottom: none;
+            font-size: 1.5em;
+             margin-bottom: 20px;
+        }
+        #results p {
+            margin: 12px 0;
+            font-size: 1.1em;
+        }
+        #results span {
+            font-weight: bold;
+            color: #004160;
+        }
+         #calculation-details, #chart-section {
+            margin-top: 25px;
+            font-size: 0.9em;
+            color: #444;
+            border-top: 1px dashed #ccc;
+            padding-top: 15px;
+        }
+         #calculation-details h4, #chart-section h4 {
+             color: var(--secondary-color);
+             margin-bottom: 10px;
+             font-size: 1.1em;
+         }
+        #calculation-details p {
+            margin: 5px 0;
+            font-size: 1em; /* Reset size for details */
+        }
+        #chart-container {
+            max-width: 450px; /* Limit chart width */
+            margin: 20px auto 0 auto; /* Center chart */
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Giuliato&Battistin</h1>
+        <h2>agenzia immobiliare</h2>
+         <div class="contact-info">
+            <span><i class="fas fa-map-marker-alt"></i>Corso SS. Felice e Fortunato, 29 - 36100 Vicenza Italy</span><br>
+            <span><i class="fas fa-phone"></i><a href="tel:+390444525447">+39 0444 525447</a></span> |
+            <span><i class="fas fa-envelope"></i><a href="mailto:info@giuliatobattistin.it">info@giuliatobattistin.it</a></span> |
+            <span><i class="fas fa-globe"></i><a href="https://www.giuliatobattistin.it" target="_blank">www.giuliatobattistin.it</a></span>
+        </div>
+    </div>
+
+    <h2 class="section-title">Calcolatore Superficie Commerciale e Valore Indicativo</h2>
+
+    <form id="calculator-form">
+        <div class="form-section">
+            <h3><i class="fas fa-home"></i> Superfici Principali</h3>
+            <label for="main-surface">Superficie abitabile principale (mq):</label>
+            <input type="number" id="main-surface" min="0" step="0.01" placeholder="Es. 100" required>
+            <span class="input-hint">Inclusi muri interni e perimetrali. Altezza > 1.70m.</span>
+
+            <label for="mansard-surface">Mansarda abitabile (mq):</label>
+            <input type="number" id="mansard-surface" min="0" step="0.01" value="0" placeholder="Es. 30">
+             <span class="input-hint">Con altezza > 1.70m.</span>
+        </div>
+
+        <div class="form-section">
+            <h3><i class="fas fa-sun"></i> Balconi, Terrazze, Logge, Portici</h3>
+             <label for="balcony-uncovered">Balconi/Terrazze SCOPERTE (mq totali):</label>
+            <input type="number" id="balcony-uncovered" min="0" step="0.01" value="0" placeholder="Es. 15">
+
+             <label for="balcony-covered">Logge / Balconi COPERTI (mq totali):</label>
+            <input type="number" id="balcony-covered" min="0" step="0.01" value="0" placeholder="Es. 10">
+
+             <label for="porch-surface">Portici (mq):</label>
+            <input type="number" id="porch-surface" min="0" step="0.01" value="0" placeholder="Es. 8">
+
+             <label for="veranda-surface">Verande (mq):</label>
+            <input type="number" id="veranda-surface" min="0" step="0.01" value="0" placeholder="Es. 12">
+        </div>
+
+        <div class="form-section">
+            <h3><i class="fas fa-warehouse"></i> Locali Accessori</h3>
+             <label for="accessory-connected">Locali acc. interrati/soffitte COLLEGATI (mq):</label>
+            <input type="number" id="accessory-connected" min="0" step="0.01" value="0" placeholder="Es. 20">
+            <span class="input-hint">Taverne, lavanderie etc. h min 2.20m (o >1.70m tetto inclinato).</span>
+
+             <label for="accessory-unconnected">Locali acc. NON collegati (mq):</label>
+            <input type="number" id="accessory-unconnected" min="0" step="0.01" value="0" placeholder="Es. 8">
+             <span class="input-hint">Cantine, depositi etc. h min 2.20m (o >1.70m tetto inclinato).</span>
+        </div>
+
+        <div class="form-section">
+             <h3><i class="fas fa-tree"></i> Giardini e Cortili</h3>
+             <label for="garden-surface">Giardino / Cortile ad uso esclusivo (mq):</label>
+            <input type="number" id="garden-surface" min="0" step="0.01" value="0" placeholder="Es. 150">
+        </div>
+
+         <div class="form-section">
+            <h3><i class="fas fa-car"></i> Autorimesse e Posti Auto</h3>
+             <label for="garage-surface">Autorimesse (mq):</label>
+            <input type="number" id="garage-surface" min="0" step="0.01" value="0" placeholder="Es. 25">
+
+             <label for="parking-covered">Posti auto COPERTI (mq):</label>
+            <input type="number" id="parking-covered" min="0" step="0.01" value="0" placeholder="Es. 12">
+
+            <label for="parking-uncovered">Posti auto SCOPERTI (mq):</label>
+            <input type="number" id="parking-uncovered" min="0" step="0.01" value="0" placeholder="Es. 12">
+        </div>
+
+        <div class="form-section">
+            <h3><i class="fas fa-euro-sign"></i><i class="fas fa-calendar-alt" style="margin-left: 5px;"></i> Valore e Vetustà</h3>
+             <label for="value-per-sqm">Valore € / mq (riferimento "Nuovo"):</label>
+            <input type="number" id="value-per-sqm" min="0" step="1" placeholder="Es. 2200">
+
+             <label for="property-age">Età dell'immobile (anni):</label>
+            <input type="number" id="property-age" min="0" step="1" value="0" placeholder="Es. 23">
+            <span class="input-hint">Lasciare 0 per nuovo/ristrutturato a nuovo (Classe A/B). Vedi note calcolo.</span>
+        </div>
+
+        <button type="button" id="calculate-btn"><i class="fas fa-calculator"></i>Calcola</button>
+
+        <div class="pdf-buttons-container">
+             <button type="button" id="download-pdf-btn-it"><i class="fas fa-file-pdf"></i>Scarica Report PDF (Italiano - mq)</button>
+             <button type="button" id="download-pdf-btn-en"><i class="fas fa-file-pdf"></i>Download English Report (sqft)</button>
+        </div>
+
+    </form>
+
+    <div id="results" style="display: none;">
+        <h2 class="results-title">Risultati del Calcolo</h2>
+        <p>Superficie Commerciale Totale: <span id="total-surface"></span> mq</p>
+        <p>Valore Indicativo Iniziale: <span id="initial-value"></span> €</p>
+        <p>Sconto per Vetustà/Adeguamento (<span id="age-used"></span> anni): <span id="aging-discount"></span> €</p>
+        <p><strong>Valore Indicativo Finale: <span id="final-value"></span> €</strong></p>
+
+        <div id="calculation-details">
+             <h4><i class="fas fa-ruler-combined"></i> Dettaglio Calcolo Superficie:</h4>
+             <div id="surface-details"></div>
+             <h4><i class="fas fa-history"></i> Dettaglio Calcolo Vetustà/Adeguamento:</h4>
+             <div id="aging-details"></div>
+        </div>
+
+        <div id="chart-section">
+             <h4><i class="fas fa-chart-pie"></i> Ripartizione Superficie Commerciale (%)</h4>
+              <div id="chart-container">
+                   <canvas id="surfaceChart"></canvas>
+              </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const calculateBtn = document.getElementById('calculate-btn');
+    const downloadPdfBtnIt = document.getElementById('download-pdf-btn-it');
+    const downloadPdfBtnEn = document.getElementById('download-pdf-btn-en');
+    const resultsDiv = document.getElementById('results');
+    const inputs = {
+        mainSurface: document.getElementById('main-surface'),
+        mansardSurface: document.getElementById('mansard-surface'),
+        balconyUncovered: document.getElementById('balcony-uncovered'),
+        balconyCovered: document.getElementById('balcony-covered'),
+        porchSurface: document.getElementById('porch-surface'),
+        verandaSurface: document.getElementById('veranda-surface'),
+        accessoryConnected: document.getElementById('accessory-connected'),
+        accessoryUnconnected: document.getElementById('accessory-unconnected'),
+        gardenSurface: document.getElementById('garden-surface'),
+        garageSurface: document.getElementById('garage-surface'),
+        parkingCovered: document.getElementById('parking-covered'),
+        parkingUncovered: document.getElementById('parking-uncovered'),
+        valuePerSqm: document.getElementById('value-per-sqm'),
+        propertyAge: document.getElementById('property-age')
+    };
+    const outputs = {
+        totalSurface: document.getElementById('total-surface'),
+        initialValue: document.getElementById('initial-value'),
+        agingDiscount: document.getElementById('aging-discount'),
+        finalValue: document.getElementById('final-value'),
+        ageUsed: document.getElementById('age-used'),
+        surfaceDetails: document.getElementById('surface-details'),
+        agingDetails: document.getElementById('aging-details'),
+        chartCanvas: document.getElementById('surfaceChart')
+    };
+
+    let calculationResults = {}; // To store results for PDF/Chart generation
+    let surfaceChart = null; // To hold the Chart.js instance
+
+    // Constants
+    const SQM_TO_SQFT = 10.7639;
+
+    // Event Listeners
+    calculateBtn.addEventListener('click', calculate);
+    downloadPdfBtnIt.addEventListener('click', generatePdf); // Italian PDF
+    downloadPdfBtnEn.addEventListener('click', generatePdfEnglish); // English PDF
+
+    // --- Helper Functions ---
+    function N(value) {
+        const parsed = parseFloat(value);
+        return isNaN(parsed) ? 0 : parsed;
+    }
+
+    function formatCurrency(value) {
+        return value.toLocaleString('it-IT', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0, maximumFractionDigits: 0 }); // Rounded EUR
+    }
+
+    function formatNumber(value, decimals = 2, lang = 'it-IT') {
+        return value.toLocaleString(lang, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+    }
+
+    // --- Core Calculation Logic ---
+    function calculate() {
+        calculationResults = { details: [], agingDetails: [], chartData: { labels: [], data: [] } }; // Reset results
+        outputs.surfaceDetails.innerHTML = '';
+        outputs.agingDetails.innerHTML = '';
+
+        const vals = {
+            mainSurface: N(inputs.mainSurface.value),
+            mansardSurface: N(inputs.mansardSurface.value),
+            balconyUncovered: N(inputs.balconyUncovered.value),
+            balconyCovered: N(inputs.balconyCovered.value),
+            porchSurface: N(inputs.porchSurface.value),
+            verandaSurface: N(inputs.verandaSurface.value),
+            accessoryConnected: N(inputs.accessoryConnected.value),
+            accessoryUnconnected: N(inputs.accessoryUnconnected.value),
+            gardenSurface: N(inputs.gardenSurface.value),
+            garageSurface: N(inputs.garageSurface.value),
+            parkingCovered: N(inputs.parkingCovered.value),
+            parkingUncovered: N(inputs.parkingUncovered.value),
+            valuePerSqm: N(inputs.valuePerSqm.value),
+            propertyAge: parseInt(inputs.propertyAge.value) || 0
+        };
+
+        if (vals.mainSurface === 0) {
+            alert("Inserire almeno la Superficie abitabile principale.");
+            return;
+        }
+        if (vals.valuePerSqm === 0 && vals.propertyAge > 0) {
+            // Allow calculation even if value is 0, but aging won't apply
+             console.warn("Valore € / mq è 0, il calcolo della vetustà non verrà applicato.");
+        }
+
+        let totalSurface = 0;
+        let detailsHtml = '';
+        let chartContributions = {
+            'Principale': 0,
+            'Balconi/Esterni': 0,
+            'Accessori': 0,
+            'Giardino': 0,
+            'Garage/Posti Auto': 0,
+        };
+
+        // 1. Superfici principali (Fattore 1/1)
+        const mainUnitArea = vals.mainSurface + vals.mansardSurface;
+        totalSurface += mainUnitArea;
+        chartContributions['Principale'] += mainUnitArea;
+        detailsHtml += `<p>Abitabile Principale: ${formatNumber(vals.mainSurface)} mq (x 1.0) = ${formatNumber(vals.mainSurface)} mq</p>`;
+        if (vals.mansardSurface > 0) {
+             detailsHtml += `<p>Mansarda Abitabile: ${formatNumber(vals.mansardSurface)} mq (x 1.0) = ${formatNumber(vals.mansardSurface)} mq</p>`;
+        }
+         calculationResults.mainUnitArea = mainUnitArea;
+         calculationResults.details.push({ item: "Abitabile Principale", area: vals.mainSurface, factor: 1.0, contribution: vals.mainSurface });
+         if (vals.mansardSurface > 0) calculationResults.details.push({ item: "Mansarda Abitabile", area: vals.mansardSurface, factor: 1.0, contribution: vals.mansardSurface });
+
+        // 2. Balconi / Terrazze SCOPERTE (Tiered)
+        let balconyUncoveredArea = vals.balconyUncovered;
+        let balconyUncoveredComm = 0;
+        let balconyUncoveredNote = "";
+        if (balconyUncoveredArea > 0 && mainUnitArea > 0) {
+            const p25 = mainUnitArea * 0.25;
+            const p50 = mainUnitArea * 0.50;
+            const p100 = mainUnitArea * 1.00;
+            let calcDetail = "";
+            let area_1_3 = Math.min(balconyUncoveredArea, p25);
+            balconyUncoveredComm += area_1_3 * (1/3);
+            calcDetail += `[${formatNumber(area_1_3)} mq x 1/3] `;
+            let remaining = balconyUncoveredArea - area_1_3;
+            if (remaining > 0) {
+                let area_1_4 = Math.min(remaining, p25);
+                balconyUncoveredComm += area_1_4 * (1/4);
+                calcDetail += `+ [${formatNumber(area_1_4)} mq x 1/4] `;
+                remaining -= area_1_4;
+            }
+            if (remaining > 0) {
+                let area_1_6 = Math.min(remaining, p50);
+                balconyUncoveredComm += area_1_6 * (1/6);
+                calcDetail += `+ [${formatNumber(area_1_6)} mq x 1/6] `;
+                remaining -= area_1_6;
+            }
+            if (remaining > 0) {
+                let area_1_10 = remaining;
+                balconyUncoveredComm += area_1_10 * (1/10);
+                calcDetail += `+ [${formatNumber(area_1_10)} mq x 1/10] `;
+            }
+            balconyUncoveredNote = calcDetail;
+            detailsHtml += `<p>Balconi/Terrazze Scoperte (${formatNumber(balconyUncoveredArea)} mq): ${calcDetail} = ${formatNumber(balconyUncoveredComm)} mq</p>`;
+            calculationResults.details.push({ item: "Balconi/Terrazze Scoperte", area: balconyUncoveredArea, factor: "Variabile", contribution: balconyUncoveredComm, note: balconyUncoveredNote });
+            totalSurface += balconyUncoveredComm;
+            chartContributions['Balconi/Esterni'] += balconyUncoveredComm;
+        }
+
+        // 3. Logge / Balconi COPERTI (Fattore 1/2)
+        if (vals.balconyCovered > 0) {
+            const contribution = vals.balconyCovered * 0.5;
+            totalSurface += contribution;
+            chartContributions['Balconi/Esterni'] += contribution;
+            detailsHtml += `<p>Logge/Balconi Coperti: ${formatNumber(vals.balconyCovered)} mq (x 0.5) = ${formatNumber(contribution)} mq</p>`;
+            calculationResults.details.push({ item: "Logge/Balconi Coperti", area: vals.balconyCovered, factor: 0.5, contribution: contribution });
+        }
+
+        // 4. Portici (Fattore 1/2)
+        if (vals.porchSurface > 0) {
+             const contribution = vals.porchSurface * 0.5;
+            totalSurface += contribution;
+            chartContributions['Balconi/Esterni'] += contribution;
+            detailsHtml += `<p>Portici: ${formatNumber(vals.porchSurface)} mq (x 0.5) = ${formatNumber(contribution)} mq</p>`;
+            calculationResults.details.push({ item: "Portici", area: vals.porchSurface, factor: 0.5, contribution: contribution });
+        }
+
+        // 5. Verande (Fattore 2/3)
+        if (vals.verandaSurface > 0) {
+             const contribution = vals.verandaSurface * (2/3);
+            totalSurface += contribution;
+            chartContributions['Balconi/Esterni'] += contribution; // Often considered external amenity
+            detailsHtml += `<p>Verande: ${formatNumber(vals.verandaSurface)} mq (x 2/3) = ${formatNumber(contribution)} mq</p>`;
+            calculationResults.details.push({ item: "Verande", area: vals.verandaSurface, factor: 2/3, contribution: contribution });
+        }
+
+        // 6. Locali Accessori Collegati (Fattore 2/3)
+        if (vals.accessoryConnected > 0) {
+            const contribution = vals.accessoryConnected * (2/3);
+            totalSurface += contribution;
+            chartContributions['Accessori'] += contribution;
+             detailsHtml += `<p>Locali Acc. Collegati: ${formatNumber(vals.accessoryConnected)} mq (x 2/3) = ${formatNumber(contribution)} mq</p>`;
+             calculationResults.details.push({ item: "Locali Acc. Collegati", area: vals.accessoryConnected, factor: 2/3, contribution: contribution });
+        }
+
+         // 7. Locali Accessori NON Collegati (Fattore 1/2)
+        if (vals.accessoryUnconnected > 0) {
+            const contribution = vals.accessoryUnconnected * 0.5;
+            totalSurface += contribution;
+            chartContributions['Accessori'] += contribution;
+             detailsHtml += `<p>Locali Acc. NON Collegati: ${formatNumber(vals.accessoryUnconnected)} mq (x 0.5) = ${formatNumber(contribution)} mq</p>`;
+             calculationResults.details.push({ item: "Locali Acc. NON Collegati", area: vals.accessoryUnconnected, factor: 0.5, contribution: contribution });
+        }
+
+        // 8. Giardini / Cortili (Tiered)
+        let gardenArea = vals.gardenSurface;
+        let gardenComm = 0;
+        let gardenNote = "";
+        if (gardenArea > 0 && mainUnitArea > 0) {
+            const p1 = mainUnitArea;
+            const p3 = mainUnitArea * 3;
+            const p5 = mainUnitArea * 5;
+            let calcDetail = "";
+            let area_1_6 = Math.min(gardenArea, p1);
+            gardenComm += area_1_6 * (1/6);
+            calcDetail += `[${formatNumber(area_1_6)} mq x 1/6] `;
+            let remaining = gardenArea - area_1_6;
+            if (remaining > 0) {
+                let area_1_10 = Math.min(remaining, p3 - p1);
+                gardenComm += area_1_10 * (1/10);
+                calcDetail += `+ [${formatNumber(area_1_10)} mq x 1/10] `;
+                remaining -= area_1_10;
+            }
+            if (remaining > 0) {
+                let area_1_20 = Math.min(remaining, p5 - p3);
+                gardenComm += area_1_20 * (1/20);
+                calcDetail += `+ [${formatNumber(area_1_20)} mq x 1/20] `;
+                remaining -= area_1_20;
+            }
+            if (remaining > 0) {
+                let area_1_50 = remaining;
+                gardenComm += area_1_50 * (1/50);
+                calcDetail += `+ [${formatNumber(area_1_50)} mq x 1/50] `;
+            }
+            gardenNote = calcDetail;
+            detailsHtml += `<p>Giardino/Cortile (${formatNumber(gardenArea)} mq): ${calcDetail} = ${formatNumber(gardenComm)} mq</p>`;
+            calculationResults.details.push({ item: "Giardino/Cortile", area: gardenArea, factor: "Variabile", contribution: gardenComm, note: gardenNote });
+            totalSurface += gardenComm;
+            chartContributions['Giardino'] += gardenComm;
+        }
+
+        // 9. Autorimesse (Fattore 2/3)
+        if (vals.garageSurface > 0) {
+            const contribution = vals.garageSurface * (2/3);
+            totalSurface += contribution;
+            chartContributions['Garage/Posti Auto'] += contribution;
+            detailsHtml += `<p>Autorimesse: ${formatNumber(vals.garageSurface)} mq (x 2/3) = ${formatNumber(contribution)} mq</p>`;
+            calculationResults.details.push({ item: "Autorimesse", area: vals.garageSurface, factor: 2/3, contribution: contribution });
+        }
+
+        // 10. Posti Auto Coperti (Fattore 1/2)
+        if (vals.parkingCovered > 0) {
+            const contribution = vals.parkingCovered * 0.5;
+            totalSurface += contribution;
+            chartContributions['Garage/Posti Auto'] += contribution;
+            detailsHtml += `<p>Posti Auto Coperti: ${formatNumber(vals.parkingCovered)} mq (x 0.5) = ${formatNumber(contribution)} mq</p>`;
+            calculationResults.details.push({ item: "Posti Auto Coperti", area: vals.parkingCovered, factor: 0.5, contribution: contribution });
+        }
+
+        // 11. Posti Auto Scoperti (Fattore 1/5)
+        if (vals.parkingUncovered > 0) {
+            const contribution = vals.parkingUncovered * 0.2;
+            totalSurface += contribution;
+            chartContributions['Garage/Posti Auto'] += contribution;
+            detailsHtml += `<p>Posti Auto Scoperti: ${formatNumber(vals.parkingUncovered)} mq (x 1/5) = ${formatNumber(contribution)} mq</p>`;
+             calculationResults.details.push({ item: "Posti Auto Scoperti", area: vals.parkingUncovered, factor: 1/5, contribution: contribution });
+        }
+
+        // Calculate Value and Aging Discount
+        const initialValue = totalSurface * vals.valuePerSqm;
+        let finalValue = initialValue;
+        let agingDiscount = 0;
+        let age = vals.propertyAge;
+        let agingDetailsHtml = `<p>Età inserita: ${age} anni.</p>`;
+        calculationResults.initialValue = initialValue;
+        calculationResults.age = age;
+
+        if (age > 0 && initialValue > 0) {
+            let currentValue = initialValue;
+            let appliedDiscount = 0;
+            const ageBrackets = [
+                { years: 5, rate: 1.0 }, { years: 5, rate: 1.1 }, { years: 10, rate: 1.2 },
+                { years: 10, rate: 1.3 }, { years: 15, rate: 1.4 }
+            ];
+            let ageCovered = 0;
+            for (const bracket of ageBrackets) {
+                if (age <= ageCovered) break;
+                const yearsInBracket = Math.min(age - ageCovered, bracket.years);
+                const discountPercent = yearsInBracket * bracket.rate;
+                const discountMultiplier = Math.max(0, (100 - discountPercent) / 100); // Ensure multiplier is not negative
+                const valueBeforeBracket = currentValue;
+                currentValue *= discountMultiplier;
+                const bracketDiscountAmount = valueBeforeBracket - currentValue;
+                appliedDiscount += bracketDiscountAmount;
+                const detail = `Anni ${ageCovered + 1}-${ageCovered + yearsInBracket} (${yearsInBracket} anni @ ${formatNumber(bracket.rate, 1)}%/anno = ${formatNumber(discountPercent,1)}%): Sconto ${formatCurrency(bracketDiscountAmount)}, Valore residuo ${formatCurrency(currentValue)}`;
+                agingDetailsHtml += `<p>${detail}</p>`;
+                calculationResults.agingDetails.push(detail);
+                ageCovered += yearsInBracket;
+            }
+            finalValue = currentValue;
+            agingDiscount = initialValue - finalValue;
+
+        } else if (age == 0) {
+            const isRecentOrRenovated = confirm("L'immobile è 'recente o ristrutturato a nuovo' (es. Classe A o B)?\n\nClicca 'OK' se sì.\nClicca 'Annulla' se di classe energetica inferiore (verrà applicata una riduzione indicativa).");
+            if (!isRecentOrRenovated && initialValue > 0) {
+                 const reductionMin = 100 * totalSurface; // €100/mq
+                 const reductionMax = 150 * totalSurface; // €150/mq
+                 const reductionApplied = (reductionMin + reductionMax) / 2; // Average reduction
+                 finalValue = Math.max(0, initialValue - reductionApplied); // Adjust final value, ensure not negative
+                 agingDiscount = initialValue - finalValue; // Show this as the adjustment
+                 const detail = `Adeguamento per classe energetica inferiore a B su immobile recente/ristrutturato: ${formatCurrency(agingDiscount)} (indicativo tra ${formatCurrency(reductionMin)} e ${formatCurrency(reductionMax)})`;
+                 agingDetailsHtml = `<p>${detail}</p>`; // Replace aging details
+                 calculationResults.agingDetails = [detail];
+                 alert(`Applicato adeguamento indicativo di ${formatCurrency(agingDiscount)} per classe energetica inferiore.`);
+            } else {
+                 agingDetailsHtml = "<p>Nessuno sconto per vetustà applicato (immobile nuovo/recente/alta classe energetica).</p>";
+                 calculationResults.agingDetails.push("Nessuno sconto per vetustà applicato (immobile nuovo/recente/alta classe energetica).");
+                 finalValue = initialValue;
+                 agingDiscount = 0;
+            }
+        } else { // age > 0 but initialValue is 0 or negative
+            agingDetailsHtml = "<p>Vetustà non calcolata (valore iniziale nullo o negativo).</p>";
+            calculationResults.agingDetails.push("Vetustà non calcolata (valore iniziale nullo o negativo).");
+            finalValue = initialValue; // Keep initial value (likely 0)
+            agingDiscount = 0;
+        }
+
+        // --- Final Updates and Display ---
+        outputs.totalSurface.textContent = formatNumber(totalSurface);
+        outputs.initialValue.textContent = formatCurrency(initialValue);
+        outputs.agingDiscount.textContent = formatCurrency(agingDiscount);
+        outputs.finalValue.textContent = formatCurrency(finalValue);
+        outputs.ageUsed.textContent = age;
+        outputs.surfaceDetails.innerHTML = detailsHtml;
+        outputs.agingDetails.innerHTML = agingDetailsHtml;
+
+        resultsDiv.style.display = 'block';
+        downloadPdfBtnIt.style.display = 'flex'; // Use flex for icon alignment
+        downloadPdfBtnEn.style.display = 'flex'; // Use flex for icon alignment
+
+        // Store values needed for PDF/Chart
+        calculationResults.totalSurface = totalSurface;
+        calculationResults.valuePerSqm = vals.valuePerSqm;
+        calculationResults.agingDiscount = agingDiscount;
+        calculationResults.finalValue = finalValue;
+        calculationResults.inputs = vals; // Store raw inputs
+
+        // Prepare chart data
+        Object.keys(chartContributions).forEach(key => {
+            if (chartContributions[key] > 0) {
+                calculationResults.chartData.labels.push(key);
+                calculationResults.chartData.data.push(chartContributions[key]);
+            }
+        });
+        updateChart(); // Update or create the chart
+
+        // Scroll to results
+        resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+     // --- Chart Update Function ---
+    function updateChart() {
+        const ctx = outputs.chartCanvas.getContext('2d');
+        const chartData = {
+            labels: calculationResults.chartData.labels,
+            datasets: [{
+                label: 'Ripartizione Superficie Commerciale (mq)',
+                data: calculationResults.chartData.data,
+                backgroundColor: [ // Add more colors if needed
+                    'rgba(0, 90, 135, 0.8)',  // Primary
+                    'rgba(0, 123, 158, 0.8)', // Secondary
+                    'rgba(40, 167, 69, 0.8)', // Accent (Green)
+                    'rgba(255, 193, 7, 0.8)',  // Yellow
+                    'rgba(108, 117, 125, 0.8)' // Gray
+                ],
+                borderColor: [
+                    'rgba(255, 255, 255, 1)',
+                    'rgba(255, 255, 255, 1)',
+                    'rgba(255, 255, 255, 1)',
+                    'rgba(255, 255, 255, 1)',
+                    'rgba(255, 255, 255, 1)'
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        if (surfaceChart) {
+            surfaceChart.data = chartData;
+            surfaceChart.update();
+        } else {
+            surfaceChart = new Chart(ctx, {
+                type: 'pie', // Or 'doughnut'
+                data: chartData,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                             callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = total > 0 ? (context.parsed / total * 100).toFixed(1) : 0;
+                                        label += formatNumber(context.parsed) + ' mq (' + percentage + '%)';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+
+    // --- PDF Generation (Italian) ---
+    function generatePdf() {
+        if (Object.keys(calculationResults).length === 0 || !calculationResults.inputs) {
+            alert("Effettua prima un calcolo.");
+            return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const margin = 15;
+        let y = 20;
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const pageWidth = doc.internal.pageSize.getWidth();
+
+        function checkPageBreak(increment = 5) {
+             if (y + increment > pageHeight - margin) {
+                doc.addPage();
+                y = margin; // Reset y for new page
+             }
+             return y;
+         }
+
+        // Header
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(0, 90, 135); // #005a87
+        doc.text("Giuliato&Battistin agenzia immobiliare", pageWidth / 2, y, { align: 'center' });
+        y += 6;
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(100, 100, 100);
+        doc.text("Corso SS. Felice e Fortunato, 29 - 36100 Vicenza Italy", pageWidth / 2, y, { align: 'center' });
+         y += 4;
+        doc.text("Tel: +39 0444 525447 | Email: info@giuliatobattistin.it | Web: www.giuliatobattistin.it", pageWidth / 2, y, { align: 'center' });
+        y += 8;
+        doc.setLineWidth(0.3);
+        doc.setDrawColor(200, 200, 200);
+        doc.line(margin, y, pageWidth - margin, y);
+        y += 10;
+
+        // Title
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(51, 51, 51);
+        doc.text("Report Calcolo Indicativo Superficie e Valore", margin, y);
+        y += 10;
+        checkPageBreak(10);
+
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+
+        // Input Summary Section
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bolditalic");
+        doc.text("Dati Inseriti", margin, y);
+        y += 6;
+        checkPageBreak(6);
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "normal");
+
+        const inputsData = calculationResults.inputs;
+        const inputItems = [
+            { label: "Sup. Abitabile Principale:", value: inputsData.mainSurface, unit: "mq" },
+            { label: "Mansarda Abitabile:", value: inputsData.mansardSurface, unit: "mq" },
+            { label: "Balconi/Terrazze Scoperte:", value: inputsData.balconyUncovered, unit: "mq" },
+            { label: "Logge/Balconi Coperti:", value: inputsData.balconyCovered, unit: "mq" },
+            { label: "Portici:", value: inputsData.porchSurface, unit: "mq" },
+            { label: "Verande:", value: inputsData.verandaSurface, unit: "mq" },
+            { label: "Locali Acc. Collegati:", value: inputsData.accessoryConnected, unit: "mq" },
+            { label: "Locali Acc. NON Collegati:", value: inputsData.accessoryUnconnected, unit: "mq" },
+            { label: "Giardino/Cortile Esclusivo:", value: inputsData.gardenSurface, unit: "mq" },
+            { label: "Autorimesse:", value: inputsData.garageSurface, unit: "mq" },
+            { label: "Posti Auto Coperti:", value: inputsData.parkingCovered, unit: "mq" },
+            { label: "Posti Auto Scoperti:", value: inputsData.parkingUncovered, unit: "mq" },
+            { label: "Valore Base:", value: inputsData.valuePerSqm, unit: "€/mq" },
+            { label: "Età Immobile:", value: inputsData.propertyAge, unit: "anni" },
+        ];
+
+        inputItems.forEach(item => {
+            if (item.value > 0 || item.label === "Età Immobile:" || item.label === "Valore Base:" || item.label === "Sup. Abitabile Principale:") {
+                doc.text(`${item.label} ${formatNumber(item.value)} ${item.unit}`, margin + 5, y);
+                 y += 5;
+                 checkPageBreak(5);
+            }
+        });
+         y += 5; // Extra space
+         checkPageBreak(5);
+
+        // Calculation Details Section
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bolditalic");
+        doc.text("Dettaglio Calcolo Superficie Commerciale", margin, y);
+        y += 6;
+        checkPageBreak(6);
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "normal");
+
+        calculationResults.details.forEach(detail => {
+            let factorText = "";
+            if (typeof detail.factor === 'number') {
+                 factorText = `(x ${formatNumber(detail.factor, 3)})`;
+             } else if (detail.factor === "Variabile" && detail.note) {
+                  factorText = `(Var.) Dettaglio: ${detail.note}`;
+             } else {
+                 factorText = `(${detail.factor})`;
+             }
+            let line = `${detail.item} (${formatNumber(detail.area)} mq) ${factorText} = ${formatNumber(detail.contribution)} mq comm.`;
+            const splitLines = doc.splitTextToSize(line, pageWidth - margin * 2 - 5);
+            doc.text(splitLines, margin + 5, y);
+            y += splitLines.length * 4 + 1;
+            checkPageBreak(splitLines.length * 4 + 1);
+        });
+        y += 2;
+        checkPageBreak(2);
+        doc.setFont("helvetica", "bold");
+        doc.text(`TOTALE SUPERFICIE COMMERCIALE: ${formatNumber(calculationResults.totalSurface)} mq`, margin + 5, y);
+        y += 10;
+        checkPageBreak(10);
+
+        // Value Calculation Section
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bolditalic");
+        doc.text("Calcolo Valore Indicativo", margin, y);
+        y += 6;
+        checkPageBreak(6);
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "normal");
+
+        if (calculationResults.valuePerSqm > 0) {
+             doc.text(`Valore Iniziale: ${formatNumber(calculationResults.totalSurface)} mq * ${formatCurrency(calculationResults.valuePerSqm)}/mq = ${formatCurrency(calculationResults.initialValue)}`, margin + 5, y);
+        } else {
+             doc.text(`Valore Iniziale: Non calcolato (Valore base €/mq non inserito)`, margin + 5, y);
+        }
+        y += 6;
+        checkPageBreak(6);
+
+        doc.text(`Età considerata per vetustà/adeguamento: ${calculationResults.age} anni`, margin + 5, y);
+        y += 5;
+        checkPageBreak(5);
+
+        if (calculationResults.agingDetails && calculationResults.agingDetails.length > 0) {
+            calculationResults.agingDetails.forEach(detail => {
+                 const splitLines = doc.splitTextToSize(detail, pageWidth - margin * 2 - 10); // Indent detail lines
+                doc.text(splitLines, margin + 10, y);
+                y += splitLines.length * 4 + 1;
+                checkPageBreak(splitLines.length * 4 + 1);
+            });
+        }
+        y += 2;
+        checkPageBreak(2);
+
+        doc.text(`Sconto Totale per Vetustà/Adeguamento: ${formatCurrency(calculationResults.agingDiscount)}`, margin + 5, y);
+        y += 6;
+        checkPageBreak(6);
+
+        doc.setFont("helvetica", "bold");
+        doc.text(`VALORE INDICATIVO FINALE: ${formatCurrency(calculationResults.finalValue)}`, margin + 5, y);
+        y += 15;
+        checkPageBreak(15);
+
+        // Footer / Disclaimer
+        doc.setFontSize(8);
+        doc.setFont("helvetica", "italic");
+        doc.setTextColor(150, 150, 150);
+        const disclaimer = "Nota: Questo calcolo è puramente indicativo e basato sui dati forniti dall'utente e sui criteri standard della Borsa Immobiliare di Vicenza (come interpretati in questo strumento). Non costituisce una perizia di stima ufficiale. Per una valutazione precisa, contattare l'agenzia Giuliato&Battistin.";
+        const splitDisclaimer = doc.splitTextToSize(disclaimer, pageWidth - margin * 2);
+         // Position disclaimer near the bottom
+         y = pageHeight - margin - (splitDisclaimer.length * 3.5); // Adjust vertical position based on lines
+         if (y < margin + 100) y = margin + 100; // Ensure it doesn't overlap content too much
+         doc.text(splitDisclaimer, margin, y);
+
+        // Save the PDF
+        doc.save('Report_Stima_GiuliatoBattistin_IT.pdf');
+    }
+
+     // --- PDF Generation (English) ---
+    function generatePdfEnglish() {
+        if (Object.keys(calculationResults).length === 0 || !calculationResults.inputs) {
+            alert("Please perform a calculation first.");
+            return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const margin = 15;
+        let y = 20;
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const pageWidth = doc.internal.pageSize.getWidth();
+
+        function checkPageBreak(increment = 5) {
+             if (y + increment > pageHeight - margin) {
+                doc.addPage();
+                y = margin;
+             }
+             return y;
+         }
+
+        // Helper for English formatting
+        function formatNumberEn(value, decimals = 2) {
+            return formatNumber(value, decimals, 'en-US');
+        }
+        function formatCurrencyEn(value) {
+             // Currency format is often independent of locale for EUR, but we keep IT format for consistency
+             return formatCurrency(value);
+        }
+
+
+        // Header (English)
+        doc.setFontSize(16);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(0, 90, 135); // #005a87
+        doc.text("Giuliato&Battistin Real Estate Agency", pageWidth / 2, y, { align: 'center' });
+        y += 6;
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(100, 100, 100);
+        doc.text("Corso SS. Felice e Fortunato, 29 - 36100 Vicenza Italy", pageWidth / 2, y, { align: 'center' });
+         y += 4;
+        doc.text("Phone: +39 0444 525447 | Email: info@giuliatobattistin.it | Website: www.giuliatobattistin.it", pageWidth / 2, y, { align: 'center' });
+        y += 8;
+        doc.setLineWidth(0.3);
+        doc.setDrawColor(200, 200, 200);
+        doc.line(margin, y, pageWidth - margin, y);
+        y += 10;
+
+        // Title (English)
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(51, 51, 51);
+        doc.text("Indicative Commercial Surface Area and Value Report", margin, y);
+        y += 10;
+        checkPageBreak(10);
+
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+
+        // Input Summary Section (English + sqft)
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bolditalic");
+        doc.text("Input Data Summary", margin, y);
+        y += 6;
+        checkPageBreak(6);
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "normal");
+
+        const inputsData = calculationResults.inputs;
+        const valuePerSqft = inputsData.valuePerSqm > 0 ? inputsData.valuePerSqm / SQM_TO_SQFT : 0;
+        const inputItemsEn = [
+            { label: "Main Habitable Area:", value: inputsData.mainSurface * SQM_TO_SQFT, unit: "sqft" },
+            { label: "Habitable Attic:", value: inputsData.mansardSurface * SQM_TO_SQFT, unit: "sqft" },
+            { label: "Uncovered Balconies/Terraces:", value: inputsData.balconyUncovered * SQM_TO_SQFT, unit: "sqft" },
+            { label: "Covered Loggias/Balconies:", value: inputsData.balconyCovered * SQM_TO_SQFT, unit: "sqft" },
+            { label: "Porches:", value: inputsData.porchSurface * SQM_TO_SQFT, unit: "sqft" },
+            { label: "Verandas:", value: inputsData.verandaSurface * SQM_TO_SQFT, unit: "sqft" },
+            { label: "Connected Ancillary Rooms:", value: inputsData.accessoryConnected * SQM_TO_SQFT, unit: "sqft" },
+            { label: "Unconnected Ancillary Rooms:", value: inputsData.accessoryUnconnected * SQM_TO_SQFT, unit: "sqft" },
+            { label: "Exclusive Garden/Courtyard:", value: inputsData.gardenSurface * SQM_TO_SQFT, unit: "sqft" },
+            { label: "Garages:", value: inputsData.garageSurface * SQM_TO_SQFT, unit: "sqft" },
+            { label: "Covered Parking Spaces:", value: inputsData.parkingCovered * SQM_TO_SQFT, unit: "sqft" },
+            { label: "Uncovered Parking Spaces:", value: inputsData.parkingUncovered * SQM_TO_SQFT, unit: "sqft" },
+            { label: "Base Value:", value: valuePerSqft, unit: `€/sqft (from ${formatCurrencyEn(inputsData.valuePerSqm)}/mq)` },
+            { label: "Property Age:", value: inputsData.propertyAge, unit: "years" },
+        ];
+
+        inputItemsEn.forEach(item => {
+             // Show 0 values for area if explicitly entered (mansard, etc.) or always show age/value
+             const rawValue = item.unit.includes('sqft') ? item.value / SQM_TO_SQFT : item.value;
+             if (rawValue > 0 || item.label === "Property Age:" || item.label === "Base Value:" || item.label === "Main Habitable Area:") {
+                let valueString = formatNumberEn(item.value, item.unit === '€/sqft' ? 2 : 0); // More decimals for value/sqft
+                doc.text(`${item.label} ${valueString} ${item.unit}`, margin + 5, y);
+                y += 5;
+                checkPageBreak(5);
+            }
+        });
+         y += 5; // Extra space
+         checkPageBreak(5);
+
+
+        // Calculation Details Section (English + sqft)
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bolditalic");
+        doc.text("Commercial Surface Area Calculation Details", margin, y);
+        y += 6;
+        checkPageBreak(6);
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "normal");
+
+        calculationResults.details.forEach(detail => {
+            const areaSqft = detail.area * SQM_TO_SQFT;
+            const contributionSqft = detail.contribution * SQM_TO_SQFT;
+            let factorText = "";
+             if (typeof detail.factor === 'number') {
+                factorText = `(x ${formatNumberEn(detail.factor, 3)})`;
+            } else if (detail.factor === "Variabile") {
+                 factorText = `(Variable Factor)`; // Keep note out for brevity in English version maybe? Or translate note if needed.
+                 // Example with translated note (if simple): factorText = `(Variable Factor) Detail: ${detail.note.replace(/mq/g, 'sqft').replace(/x/g, '*')}`;
+             } else {
+                 factorText = `(${detail.factor})`; // Might need translation if factor is text
+             }
+
+            // Simple translation map for item names
+            const itemTranslations = {
+                "Abitabile Principale": "Main Habitable Area",
+                "Mansarda Abitabile": "Habitable Attic",
+                "Balconi/Terrazze Scoperte": "Uncovered Balconies/Terraces",
+                "Logge/Balconi Coperti": "Covered Loggias/Balconies",
+                "Portici": "Porches",
+                "Verande": "Verandas",
+                "Locali Acc. Collegati": "Connected Ancillary Rooms",
+                "Locali Acc. NON Collegati": "Unconnected Ancillary Rooms",
+                "Giardino/Cortile": "Garden/Courtyard",
+                "Autorimesse": "Garages",
+                "Posti Auto Coperti": "Covered Parking Spaces",
+                "Posti Auto Scoperti": "Uncovered Parking Spaces"
+            };
+            const itemEn = itemTranslations[detail.item] || detail.item; // Fallback to original if no translation
+
+            let line = `${itemEn} (${formatNumberEn(areaSqft, 0)} sqft) ${factorText} = ${formatNumberEn(contributionSqft, 0)} comm. sqft`;
+            const splitLines = doc.splitTextToSize(line, pageWidth - margin * 2 - 5);
+            doc.text(splitLines, margin + 5, y);
+            y += splitLines.length * 4 + 1;
+            checkPageBreak(splitLines.length * 4 + 1);
+        });
+        y += 2;
+        checkPageBreak(2);
+        doc.setFont("helvetica", "bold");
+        const totalSurfaceSqft = calculationResults.totalSurface * SQM_TO_SQFT;
+        doc.text(`TOTAL COMMERCIAL SURFACE AREA: ${formatNumberEn(totalSurfaceSqft, 0)} sqft`, margin + 5, y);
+        y += 10;
+        checkPageBreak(10);
+
+        // Value Calculation Section (English)
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "bolditalic");
+        doc.text("Indicative Value Calculation", margin, y);
+        y += 6;
+        checkPageBreak(6);
+        doc.setFontSize(9);
+        doc.setFont("helvetica", "normal");
+
+        // Note: Initial value in EUR should be the same, calculated either way
+         if (valuePerSqft > 0) {
+             doc.text(`Initial Value: ${formatNumberEn(totalSurfaceSqft, 0)} sqft * ${formatCurrencyEn(valuePerSqft)}/sqft = ${formatCurrencyEn(calculationResults.initialValue)}`, margin + 5, y);
+         } else {
+            doc.text(`Initial Value: Not calculated (Base value €/sqft not provided)`, margin + 5, y);
+         }
+        y += 6;
+        checkPageBreak(6);
+
+        doc.text(`Age considered for aging/adjustment: ${calculationResults.age} years`, margin + 5, y);
+        y += 5;
+        checkPageBreak(5);
+
+        if (calculationResults.agingDetails && calculationResults.agingDetails.length > 0) {
+            // Simple replacement for aging details - more complex translation might be needed for full clarity
+             calculationResults.agingDetails.forEach(detail => {
+                 let detailEn = detail.replace(/Anni/g, 'Years').replace(/anni/g, 'years')
+                                   .replace(/Sconto/g, 'Discount').replace(/Valore residuo/g, 'Residual Value')
+                                   .replace(/Adeguamento per classe energetica inferiore.*:/, 'Adjustment for lower energy class (recent property):')
+                                   .replace(/Nessuno sconto per vetustà applicato/, 'No aging discount applied')
+                                   .replace(/Vetustà non calcolata/, 'Aging not calculated');
+
+                const splitLines = doc.splitTextToSize(detailEn, pageWidth - margin * 2 - 10);
+                doc.text(splitLines, margin + 10, y);
+                y += splitLines.length * 4 + 1;
+                checkPageBreak(splitLines.length * 4 + 1);
+            });
+        }
+        y += 2;
+        checkPageBreak(2);
+
+        doc.text(`Total Aging/Adjustment Discount: ${formatCurrencyEn(calculationResults.agingDiscount)}`, margin + 5, y);
+        y += 6;
+        checkPageBreak(6);
+
+        doc.setFont("helvetica", "bold");
+        doc.text(`FINAL INDICATIVE VALUE: ${formatCurrencyEn(calculationResults.finalValue)}`, margin + 5, y);
+        y += 15;
+        checkPageBreak(15);
+
+        // Footer / Disclaimer (English)
+        doc.setFontSize(8);
+        doc.setFont("helvetica", "italic");
+        doc.setTextColor(150, 150, 150);
+        const disclaimerEn = "Note: This calculation is purely indicative, based on user-provided data and standard criteria (as interpreted by this tool). It does not constitute an official appraisal. For an accurate valuation, please contact Giuliato&Battistin agency.";
+        const splitDisclaimerEn = doc.splitTextToSize(disclaimerEn, pageWidth - margin * 2);
+        // Position disclaimer near the bottom
+         y = pageHeight - margin - (splitDisclaimerEn.length * 3.5); // Adjust vertical position based on lines
+         if (y < margin + 100) y = margin + 100; // Ensure it doesn't overlap content too much
+         doc.text(splitDisclaimerEn, margin, y);
+
+
+        // Save the PDF
+        doc.save('Report_Estimate_GiuliatoBattistin_EN.pdf');
+    }
+
+</script>
+
+</body>
+</html>
